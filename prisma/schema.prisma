@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+
+  emails    Email[]
+  folders   Folder[]
+}
+
+model Email {
+  id        String   @id @default(uuid())
+  subject   String
+  body      String
+  from      String
+  to        String
+
+  isRead    Boolean  @default(false)
+  isDeleted Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+
+  folders   EmailFolder[]
+
+  @@index([subject])
+  @@index([createdAt])
+}
+
+model Folder {
+  id      String @id @default(uuid())
+  name    String
+  order   Int
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  emails  EmailFolder[]
+
+  @@unique([userId, name])
+}
+
+model EmailFolder {
+  emailId  String
+  folderId String
+
+  email  Email  @relation(fields: [emailId], references: [id])
+  folder Folder @relation(fields: [folderId], references: [id])
+
+  @@id([emailId, folderId])
+}
