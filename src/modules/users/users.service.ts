@@ -16,4 +16,29 @@ export class UsersService {
       data: { email, password },
     });
   }
+
+  async searchByEmail(query: string, excludeUserId?: string) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    return this.prisma.user.findMany({
+      where: {
+        email: {
+          contains: trimmed,
+          mode: 'insensitive',
+        },
+        ...(excludeUserId ? { id: { not: excludeUserId } } : {}),
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+      orderBy: {
+        email: 'asc',
+      },
+      take: 8,
+    });
+  }
 }
