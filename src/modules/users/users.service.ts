@@ -11,9 +11,9 @@ export class UsersService {
     });
   }
 
-  async createUser(email: string, password: string) {
+  async createUser(email: string, password?: string, provider: string = 'local') {
     return this.prisma.user.create({
-      data: { email, password },
+      data: { email, password, provider },
     });
   }
 

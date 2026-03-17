@@ -39,4 +39,17 @@ export class AuthService {
         return { accessToken };
         }
   
+  async validateGoogleUser(profile: any) {
+    const { email, sub: googleId } = profile._json;
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      user = await this.usersService.createUser(email, undefined, 'google');
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return { accessToken };
+  }
 }
